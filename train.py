@@ -43,14 +43,17 @@ def train():
         correct, total = 0, 0
 
         for images, labels in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
+            #将数据移动到设备，准备训练
             images, labels = images.to(device), labels.to(device)
 
-            optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+            #清梯度 → 前向 → 算损失 → 反向 → 更参数 → 统计
+            optimizer.zero_grad()#清零梯度，准备计算新的梯度
+            outputs = model(images)#前向传播，得到模型的输出，即每个类的原始得分（未经过softmax处理）
+            loss = criterion(outputs, labels)#计算损失，比较模型输出与真实标签之间的差距，得到一个标量值，表示当前模型的性能
+            loss.backward()#反向传播，计算损失函数相对于模型参数的梯度，这些梯度将用于更新模型参数
+            optimizer.step()#更新模型参数，根据计算得到的梯度调整模型参数，以最小化损失函数
 
+            #统计训练损失和准确率，running_loss累计损失，preds得到模型预测的类别，total统计总样本数，correct统计正确预测的样本数
             running_loss += loss.item()
             _, preds = outputs.max(1)
             total += labels.size(0)
@@ -60,7 +63,7 @@ def train():
         print(f"[Train] Epoch {epoch+1}, Loss: {running_loss/len(train_loader):.4f}, Acc: {train_acc:.2f}%")
 
         # 简单验证
-        model.eval()
+        model.eval()#切换到评估模式，关闭dropout和batch normalization的训练行为
         correct, total = 0, 0
         with torch.no_grad():
             for images, labels in test_loader:
