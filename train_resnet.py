@@ -14,19 +14,20 @@ test_accs = []
 def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
-
+    # 数据增强和预处理，增加数据多样性，提高模型的泛化能力，防止过拟合
     transform_train = transforms.Compose([
-        transforms.Resize(224),
+        transforms.Resize(224),#将图像调整为224x224，适配ResNet-18的输入尺寸
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
+        #使用ImageNet的均值和标准差进行归一化处理，因为我们使用了在ImageNet上预训练的ResNet-18模型，这样可以更好地利用预训练权重
         transforms.Normalize((0.485, 0.456, 0.406),
                              (0.229, 0.224, 0.225)),
     ])
 
     transform_test = transforms.Compose([
-        transforms.Resize(224),
-        transforms.CenterCrop(224),
+        transforms.Resize(224),#将图像调整为224x224，适配ResNet-18的输入尺寸
+        transforms.CenterCrop(224),#在测试阶段，使用中心裁剪来保持图像的主要内容，同时适配ResNet-18的输入尺寸
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406),
                              (0.229, 0.224, 0.225)),
@@ -48,7 +49,7 @@ def train():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-3)
 
-    epochs = 3
+    epochs = 10
     for epoch in range(epochs):
         model.train()
         correct, total, running_loss = 0, 0, 0.0
