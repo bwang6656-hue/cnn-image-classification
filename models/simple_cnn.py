@@ -24,7 +24,7 @@ class SimpleCNN(nn.Module):
         )
         # 定义分类器部分，包含两个全连接层和一个输出层，每个全连接层后面跟着ReLU激活和Dropout
         self.classifier = nn.Sequential(#分类层，将特征转化为类别概率
-            nn.Dropout(0.5),#Dropout层，随机丢弃50%神经元，防止过拟合
+            nn.Dropout(0.5),#Dropout层，随机丢弃神经元，防止过拟合
             #全连接层（线性层），将卷积层输出的特征图展平后输入，128个通道，每个通道4x4的特征图，输入维度为128*4*4=2048，输出维度为256
             nn.Linear(128 * 4 * 4, 256),
             nn.ReLU(inplace=True),#ReLU激活函数，增加模型的非线性表达能力
